@@ -28,7 +28,7 @@ import org.molgenis.compute5.parsers.WorkflowCsvParser;
  * 
  * NB parameters will be 'natural joined' when overlapping columns.
  */
-public class ComputeCommandline
+public class ComputeCommandLine
 {
 	@SuppressWarnings("static-access")
 	public static void main(String[] args) throws ParseException
