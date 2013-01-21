@@ -1,0 +1,120 @@
+<project name="compute">
+
+	<property name="app_name" value="compute" />
+	<property name="molgenis.dir" value="../molgenis" />
+	<property name="build.molgenis.dir" value="../molgenis/bin" />
+	<property name="build.molgenis_apps.dir" value="bin" />
+
+	
+	<path id="app.class.path">
+		<pathelement location="${basedir}" />
+	</path>
+	
+	<path id="molgenis.classpath">
+		<pathelement location="${build.molgenis.dir}" />
+		<pathelement location="${build.molgenis_apps.dir}" />
+		<fileset dir="../molgenis/lib">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+	
+	<target name="gitversion">
+		<!-- Get GIT revision info from the commandline GIT client-->
+		<exec executable="git" dir="${basedir}" outputproperty="git.apps.version">
+		     <arg value="rev-parse"/>
+		     <arg value="--short"/>			
+		     <arg value="HEAD"/>
+		</exec>
+		<exec executable="git" dir="${molgenis.dir}" outputproperty="git.molgenis.version">
+		     <arg value="rev-parse"/>
+		     <arg value="--short"/>			
+		     <arg value="HEAD"/>
+		</exec>
+		<echo>Creating MOLGENIS/compute distro based on Git Revision: ${git.version}</echo>
+	</target>
+	
+	<target name="compile">
+		
+		<!-- check if molgenis is compiled into ${build.dir}, otherwise compile now -->
+		<javac srcdir="${molgenis.dir}/src" destdir="${build.molgenis.dir}" nowarn="on" debug="true" includeantruntime="false">
+			<classpath refid="molgenis.classpath" />
+		</javac>
+
+		<pathconvert property="app_src" refid="app.class.path" pathsep=":">
+			<map from="${basedir}/" to="" />
+		</pathconvert>
+		<fail unless="app_src">app.class.path is not set. Did you use the right build_xyz.xml?</fail>
+
+		<echo message="compile :${app_src}" />
+
+		<!-- compile the generated results, use fork to run it with its own memory settings -->
+		<!-- NB: under Windows, forking works only if the javac path is in your PATH variable -->
+		<javac fork="true" srcdir="${app_src}" destdir="${build.molgenis_apps.dir}" nowarn="on" memoryinitialsize="256m" memorymaximumsize="512m" debug="true" includeantruntime="false">
+			<classpath refid="molgenis.classpath" />
+		</javac>
+
+	</target>
+	
+	<!-- Make a distribution:
+	      * Generate and compile this molgenis app
+	      * Bundle it with all associated dependencies and resources like manuals, example files, etc.
+	      * Create a *.zip archive -->
+	<target name="makedistro" depends="gitversion">
+		
+		<!-- Create folder structure for distro -->
+		<property name="root_distro_dir" value="${basedir}/target"/>
+		<property name="lib_dir" value="${root_distro_dir}/lib/"/>
+		
+		<!-- Delete the old distro -->
+		<delete includeEmptyDirs="true" failonerror="false">
+				<fileset dir="${root_distro_dir}" />
+		</delete>
+		
+		<mkdir dir="${lib_dir}"/>
+		
+		<!-- Copy all dependencies to the distro lib dir -->
+		<!-- This is a manually maintained list of libs for now, but we should collect this from include statements -->
+		<copy todir="${lib_dir}">
+			<fileset dir="${molgenis.dir}/lib/">
+				<include name="commons-io-2.4.jar"/>
+				<include name="freemarker.jar"/>
+				<include name="commons-cli-1.2.jar"/>
+				<include name="log4j-1.2.15.jar"/>
+			</fileset>
+		</copy>
+		
+		<!-- Create molgenis.jar -->
+		<jar jarfile="${lib_dir}/molgenis-${git.molgenis.version}.jar" basedir="${build.molgenis.dir}" update="false"/>
+
+						
+		<!-- Create molgenis_app.jar in folder dist/${app} -->
+		<jar jarfile="${lib_dir}/molgenis-${app_name}-${git.apps.version}.jar" basedir="${build.molgenis_apps.dir}" update="false"/>
+		
+		<!-- Make shell script to start molgenis app from the commandline -->
+		<echo file="${root_distro_dir}/molgenis_${app_name}.sh">#!/bin/bash
+#
+# This script runs the MOLGENIS/compute commandline with only the jars needed added to the CLASSPATH.
+# To get relative path to this script use $(dirname -- "$0").
+#
+
+MCDIR=$( cd -P "$( dirname "$0" )" &amp;&amp; pwd )
+			
+java -cp \
+$(dirname -- "$0")/lib/molgenis-${git.molgenis.version}.jar:\
+$(dirname -- "$0")/lib/molgenis-compute-${git.apps.version}.jar:\
+$(dirname -- "$0")/lib/commons-cli-1.2.jar:\
+$(dirname -- "$0")/lib/commons-io-2.4.jar:\
+$(dirname -- "$0")/lib/freemarker.jar:\
+$(dirname -- "$0")/lib/log4j-1.2.15.jar \
+org.molgenis.compute5.ComputeCommandLine \
+$*
+		</echo>
+		<chmod file="${root_distro_dir}/molgenis_${app_name}.sh" perm="755"/>
+
+		<!-- Make package with 'lib','workflows','protocols' and shell script -->
+		<zip destfile="${root_distro_dir}/molgenis_${app_name}-${git.apps.version}.zip" basedir="${root_distro_dir}" update="false" />
+
+		
+	</target>
+	
+</project>
