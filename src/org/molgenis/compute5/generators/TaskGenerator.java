@@ -5,7 +5,12 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.molgenis.compute5.model.Input;
 import org.molgenis.compute5.model.Output;
@@ -13,7 +18,6 @@ import org.molgenis.compute5.model.Parameters;
 import org.molgenis.compute5.model.Step;
 import org.molgenis.compute5.model.Task;
 import org.molgenis.compute5.model.Workflow;
-import org.molgenis.io.TupleUtils;
 import org.molgenis.util.tuple.KeyValueTuple;
 import org.molgenis.util.tuple.Tuple;
 import org.molgenis.util.tuple.WritableTuple;
@@ -71,9 +75,6 @@ public class TaskGenerator
 		for (WritableTuple target : localParameters)
 		{
 			Task task = new Task(target.getString(Task.TASKID_COLUMN));
-			
-			// remember paramter values
-			task.setParameters(target);
 
 			// add data dependencies
 			for (String previousStep : step.getPreviousSteps())
@@ -85,18 +86,38 @@ public class TaskGenerator
 			try
 			{
 				out = new StringWriter();
-				template.process(TupleUtils.toMap(target), out);
+				Map<String,Object> map = TupleUtils.toMap(target);
+				template.process(map, out);
+				
+				// remember paramter values
+				task.setParameters(map); 
+				
 				task.setScript(out.toString());
 			}
 			catch (Exception e)
 			{
+				String params = guessParametersNeeded(step.getProtocol().getTemplate());
 				throw new IOException("Generation of protocol '" + step.getProtocol().getName()
-						+ "' failed with parameters " + target + "\n" + e.getMessage());
+						+ "' failed: " + e.getMessage()+".\n"+params);
 			}
 
 			tasks.add(task);
 		}
 		return tasks;
+	}
+
+	private static String guessParametersNeeded(String ftl)
+	{
+		Set<String> params = new HashSet<String>();
+		Pattern pattern = Pattern.compile("\\{(.*?)\\}");
+		Matcher matcher = pattern.matcher(ftl);
+		while (matcher.find()) {
+		    params.add( matcher.group(0).replace("{", "").replace("}", "")); //prints /{item}/
+		}
+		
+		String result = "\nParameters ${x} refered include:";
+		for(String p: params) result += "\n"+p;
+		return result;
 	}
 
 	private static List<WritableTuple> addStepIds(List<WritableTuple> localParameters, Step step)

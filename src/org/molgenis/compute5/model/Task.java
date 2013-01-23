@@ -1,9 +1,9 @@
 package org.molgenis.compute5.model;
 
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
-
-import org.molgenis.util.tuple.Tuple;
 
 import com.google.gson.Gson;
 
@@ -22,7 +22,7 @@ public class Task
 	Set<String> previousTasks = new HashSet<String>();
 	
 	//copy of the local input/outputs used
-	Tuple parameters;
+	Map<String,Object> parameters = new LinkedHashMap<String,Object>();
 	
 	//the body of the script (backend independent)
 	String script;
@@ -68,12 +68,12 @@ public class Task
 		this.previousTasks = previousTasks;
 	}
 
-	public Tuple getParameters()
+	public Map<String,Object> getParameters()
 	{
 		return parameters;
 	}
 
-	public void setParameters(Tuple parameters)
+	public void setParameters(Map<String,Object> parameters)
 	{
 		this.parameters = parameters;
 	}

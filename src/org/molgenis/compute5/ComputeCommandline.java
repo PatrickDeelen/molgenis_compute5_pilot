@@ -16,6 +16,7 @@ import org.apache.commons.cli.PosixParser;
 import org.molgenis.compute5.generators.TaskGenerator;
 import org.molgenis.compute5.generators.TasksDiagramGenerator;
 import org.molgenis.compute5.generators.WorkflowDiagramGenerator;
+import org.molgenis.compute5.generators.local.LocalBackend;
 import org.molgenis.compute5.model.Compute;
 import org.molgenis.compute5.model.Parameters;
 import org.molgenis.compute5.model.Task;
@@ -31,8 +32,12 @@ import org.molgenis.compute5.parsers.WorkflowCsvParser;
 public class ComputeCommandLine
 {
 	@SuppressWarnings("static-access")
-	public static void main(String[] args) throws ParseException
+	public static void main(String[] args) throws ParseException, ClassNotFoundException
 	{
+		//disable freemarker logging
+		freemarker.log.Logger.selectLoggerLibrary(freemarker.log.Logger.LIBRARY_NONE);
+		
+		
 		// setup commandline options
 		Options options = new Options();
 		Option w = OptionBuilder.hasArg().isRequired(true).withLongOpt("workflow")
@@ -61,7 +66,6 @@ public class ComputeCommandLine
 					+ Arrays.asList(parametersCsv).toString().replace("[", "").replace("]", ""));
 			System.out.println("Using outputDir:   " + outputdir);
 			
-
 			System.out.println(""); // newline
 
 			// parse workflow and parameters
@@ -70,6 +74,9 @@ public class ComputeCommandLine
 
 			// generate the tasks
 			List<Task> tasks = TaskGenerator.generate(workflow, parameters);
+			
+			// write the task for the backend
+			new LocalBackend().generate(tasks, new File(outputdir));
 			
 			//generate documentation
 			new WorkflowDiagramGenerator().generate(new File(outputdir+"/doc"), workflow);
@@ -80,7 +87,7 @@ public class ComputeCommandLine
 			// output scripts + docs
 		}
 		catch (Exception e)
-		{
+		{	
 			System.out.println(e.getMessage());
 
 			System.out.println("");

@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.molgenis.compute5.generators.TupleUtils;
 import org.molgenis.compute5.model.Parameters;
-import org.molgenis.io.TupleUtils;
 import org.molgenis.io.csv.CsvReader;
 import org.molgenis.util.tuple.KeyValueTuple;
 import org.molgenis.util.tuple.Tuple;

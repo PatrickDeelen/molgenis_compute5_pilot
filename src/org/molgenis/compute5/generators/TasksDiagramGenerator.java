@@ -8,19 +8,29 @@ import java.util.Map;
 
 import org.molgenis.compute5.model.Task;
 
-
 /** Generates graphvis diagram */
-public class TasksDiagramGenerator extends Generate
+public class TasksDiagramGenerator extends Generator
 {
 	public void generate(File dir, List<Task> tasks) throws IOException
 	{
-		//model
-		Map<String, Object> model = new LinkedHashMap<String, Object>();
-		model.put("tasks", tasks);
+		try
+		{
+			// model
+			Map<String, Object> model = new LinkedHashMap<String, Object>();
+			model.put("tasks", tasks);
 
-		//apply
-		File dotFile = new File(dir + "/tasks.dot");
-		applyTemplate(model, "TasksDiagramGenerator.ftl", dotFile);
-		GraphvizHelper.executeDot(dotFile, "png", true);
+			// apply
+			File dotFile = new File(dir.getAbsoluteFile() + "/tasks.dot");
+			applyTemplate(model, "TasksDiagramGenerator.ftl", dotFile);
+			System.out.println("Generated "+dotFile);
+			
+			GraphvizUtil.executeDot(dotFile, "png", true);
+			
+			
+		}
+		catch (Exception e)
+		{
+			throw new IOException("Task diagram generation failed: " + e.getMessage());
+		}
 	}
 }

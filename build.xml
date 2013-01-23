@@ -76,10 +76,15 @@
 		<!-- This is a manually maintained list of libs for now, but we should collect this from include statements -->
 		<copy todir="${lib_dir}">
 			<fileset dir="${molgenis.dir}/lib/">
-				<include name="commons-io-2.4.jar"/>
 				<include name="freemarker.jar"/>
-				<include name="commons-cli-1.2.jar"/>
+				<include name="commons-io-2.4.jar"/>
 				<include name="log4j-1.2.15.jar"/>
+			</fileset>
+		</copy>
+		
+		<copy todir="${lib_dir}">
+			<fileset dir="${basedir}/lib/">
+				<include name="commons-cli-1.2.jar"/>
 			</fileset>
 		</copy>
 		
