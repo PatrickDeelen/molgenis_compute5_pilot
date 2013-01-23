@@ -13,6 +13,8 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
+import org.molgenis.compute5.backends.local.LocalBackend;
+import org.molgenis.compute5.generators.BackendGenerator;
 import org.molgenis.compute5.generators.TaskGenerator;
 import org.molgenis.compute5.generators.TasksDiagramGenerator;
 import org.molgenis.compute5.generators.WorkflowDiagramGenerator;
@@ -71,6 +73,11 @@ public class ComputeCommandLine
 			// generate the tasks
 			List<Task> tasks = TaskGenerator.generate(workflow, parameters);
 			
+			// get the backend
+			
+			// write the task for the backend
+			BackendGenerator.generate(new LocalBackend(), tasks, new File(outputdir));
+			
 			//generate documentation
 			new WorkflowDiagramGenerator().generate(new File(outputdir+"/doc"), workflow);
 			new TasksDiagramGenerator().generate(new File(outputdir+"/doc"), tasks);
@@ -80,8 +87,10 @@ public class ComputeCommandLine
 			// output scripts + docs
 		}
 		catch (Exception e)
-		{
+		{	
 			System.out.println(e.getMessage());
+			
+			e.printStackTrace();
 
 			System.out.println("");
 

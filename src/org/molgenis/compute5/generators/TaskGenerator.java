@@ -6,6 +6,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.molgenis.compute5.model.Input;
 import org.molgenis.compute5.model.Output;
@@ -13,7 +14,7 @@ import org.molgenis.compute5.model.Parameters;
 import org.molgenis.compute5.model.Step;
 import org.molgenis.compute5.model.Task;
 import org.molgenis.compute5.model.Workflow;
-import org.molgenis.io.TupleUtils;
+import org.molgenis.compute5.parsers.TupleUtils;
 import org.molgenis.util.tuple.KeyValueTuple;
 import org.molgenis.util.tuple.Tuple;
 import org.molgenis.util.tuple.WritableTuple;
@@ -71,9 +72,6 @@ public class TaskGenerator
 		for (WritableTuple target : localParameters)
 		{
 			Task task = new Task(target.getString(Task.TASKID_COLUMN));
-			
-			// remember paramter values
-			task.setParameters(target);
 
 			// add data dependencies
 			for (String previousStep : step.getPreviousSteps())
@@ -85,7 +83,12 @@ public class TaskGenerator
 			try
 			{
 				out = new StringWriter();
-				template.process(TupleUtils.toMap(target), out);
+				Map<String,Object> map = TupleUtils.toMap(target);
+				template.process(map, out);
+				
+				// remember paramter values
+				task.setParameters(map); 
+				
 				task.setScript(out.toString());
 			}
 			catch (Exception e)

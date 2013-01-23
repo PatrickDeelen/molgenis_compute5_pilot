@@ -14,7 +14,7 @@ node [fontname = "Arial"
 <#if color == 9 ><#assign color = 1/></#if>
 ${task.name}[
  	fillcolor =  "${color}"
- 	label = "{ ${task.name} | <#list task.parameters.colNames as col><#if !col?contains('.')>${col}=<#if task.parameters.get(col)?is_sequence>\[<#list task.parameters.get(col) as val><#if val_index &gt; 0>,</#if>${val?html}</#list>\]<#else>${task.parameters.get(col)?html}</#if>\n</#if></#list>}"]
+ 	label = "{ ${task.name} | <#list task.parameters?keys as col><#if !task.parameters[col]?is_hash >${col}=<#if task.parameters[col]?is_sequence>\[<#list task.parameters[col] as val><#if val_index &gt; 0>,</#if>${val?html}</#list>\]<#else>${task.parameters[col]?html}</#if>\n</#if></#list>}"]
 <#list task.previousTasks as previous>
 ${previous} -> ${task.name}
 </#list>

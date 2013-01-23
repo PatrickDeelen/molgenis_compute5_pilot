@@ -18,8 +18,11 @@ public class WorkflowDiagramGenerator extends Generate
 		model.put("workflow", workflow);
 
 		//apply
-		File dotFile = new File(dir + "/workflow.dot");
+		File dotFile = new File(dir.getAbsoluteFile() + "/workflow.dot");
 		applyTemplate(model, "WorkflowDiagramGenerator.ftl", dotFile);
+		
+		System.out.println("Generated "+dotFile);
+		
 		GraphvizHelper.executeDot(dotFile, "png", true);
 	}
 }

@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.molgenis.compute5.model.Parameters;
 import org.molgenis.compute5.parsers.ParametersCsvParser;
-import org.molgenis.io.TupleUtils;
+import org.molgenis.compute5.parsers.TupleUtils;
 import org.molgenis.util.tuple.Tuple;
 import org.molgenis.util.tuple.WritableTuple;
 import org.testng.annotations.Test;
