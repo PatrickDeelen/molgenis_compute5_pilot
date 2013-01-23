@@ -14,3 +14,8 @@ Import into Eclipse
 Inside Eclipse create a run configuration for ComputeCommandline with arguments
 
 	-w workflows/splitmerge/workflow.csv -o target -p workflows/splitmerge/parameters.csv
+	
+	
+## Known limitations
+
+* Workflow behavior cannot depend on results from previous steps. Examples: based on counts I get a limitted set of chunks.
