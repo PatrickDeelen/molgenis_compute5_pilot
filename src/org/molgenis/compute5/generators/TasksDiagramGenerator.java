@@ -9,7 +9,7 @@ import java.util.Map;
 import org.molgenis.compute5.model.Task;
 
 /** Generates graphvis diagram */
-public class TasksDiagramGenerator extends Generate
+public class TasksDiagramGenerator extends Generator
 {
 	public void generate(File dir, List<Task> tasks) throws IOException
 	{
@@ -24,7 +24,7 @@ public class TasksDiagramGenerator extends Generate
 			applyTemplate(model, "TasksDiagramGenerator.ftl", dotFile);
 			System.out.println("Generated "+dotFile);
 			
-			GraphvizHelper.executeDot(dotFile, "png", true);
+			GraphvizUtil.executeDot(dotFile, "png", true);
 			
 			
 		}

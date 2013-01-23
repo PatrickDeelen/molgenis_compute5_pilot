@@ -4,6 +4,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.molgenis.compute5.model.Input;
 import org.molgenis.compute5.model.Output;
@@ -11,8 +15,13 @@ import org.molgenis.compute5.model.Protocol;
 
 /**
  * Parser for protocol ftl file
+ * 
+ * parameters are defined as follows:
+ * 
+ * #string NAME DESCRIPTION #list NAME DESCRIPTION #output NAME VALUE
+ * DESCRIPTION
  */
-//FIXME: add parsing for cores, mem, etc
+// FIXME: add parsing for cores, mem, etc
 public class ProtocolFtlParser
 {
 
@@ -38,8 +47,11 @@ public class ProtocolFtlParser
 			}
 
 			// start reading
-			BufferedReader reader = new BufferedReader(new FileReader(templateFile));
+			 BufferedReader reader = new BufferedReader(new
+			 FileReader(templateFile));
 			Protocol p = new Protocol(protocolFile);
+
+			// Then read the non-# as template
 
 			// need to harvest all lines that start with #
 			// need to harvest all other lines
@@ -52,41 +64,44 @@ public class ProtocolFtlParser
 				if (line.startsWith("#"))
 				{
 					// remove #, trim spaces, then split on " "
-					line = line.substring(1).trim();
-					String[] els = line.split(" ");
+					line = line.substring(1);
+					List<String> els = new ArrayList<String>();
+					Matcher m = Pattern.compile("([^\"]\\S*|\".+?\")\\s*").matcher(line);
+					while (m.find())
+					    els.add(m.group(1));
 
-					if (els.length > 0)
+					if (els.size() > 0)
 					{
-						if (els[0].equals("MOLGENIS"))
+						if (els.get(0).equals("MOLGENIS"))
 						{
 							// todo
 						}
 						// description?
-						else if (els[0].equals("description") && els.length > 1)
+						else if (els.get(0).equals("description") && els.size() > 1)
 						{
 							// add all elements
-							for (int i = 1; i < els.length; i++)
+							for (int i = 1; i < els.size(); i++)
 							{
-								description += els[i] + " ";
+								description += els.get(i) + " ";
 							}
 							description += "\n";
 						}
 
 						// input
-						else if (els[0].equals("input") || els[0].equals("string") || els[0].equals("list"))
+						else if (els.get(0).equals("input") || els.get(0).equals("string") || els.get(0).equals("list"))
 						{
 							// assume name column
-							if (els.length < 2) throw new IOException("param requires 'name', e.g. '#param input1'");
+							if (els.size() < 2) throw new IOException("param requires 'name', e.g. '#string input1'");
 
-							Input input = new Input(els[1]);
-							
-							input.setType(els[0]);
+							Input input = new Input(els.get(1));
+
+							input.setType(els.get(0));
 
 							// description is everything else
 							String inputDescription = "";
-							for (int i = 2; i < els.length; i++)
+							for (int i = 2; i < els.size(); i++)
 							{
-								inputDescription += " " + els[i];
+								inputDescription += " " + els.get(i);
 							}
 							if (inputDescription.length() > 0) input.setDescription(inputDescription.trim());
 
@@ -94,29 +109,36 @@ public class ProtocolFtlParser
 						}
 
 						// MOLGENIS
-						else if (els[0].equals("MOLGENIS"))
+						else if (els.get(0).equals("MOLGENIS"))
 						{
 							// TODO
 						}
 
 						// output
-						else if (els[0].equals("output"))
+						else if (els.get(0).equals("output"))
 						{
-							if (els.length < 2) throw new IOException("output requires 'name', e.g. '#output output1'");
-							if (els.length < 3) throw new IOException(
+							if (els.size() < 2) throw new IOException("output requires 'name', e.g. '#output output1'");
+							if (els.size() < 3) throw new IOException(
 									"output requires 'output', e.g. '#output output1 ${input1}'");
 
-							Output o = new Output(els[1]);
-							o.setValue(els[2]);
-							//allow spaces in the value (risky???)
-							for(int i = 3; i < els.length; i ++) o.setValue(o.getValue()+" "+els[i]);
+							Output o = new Output(els.get(1));
+							o.setValue(els.get(2));
+							
+							// description is everything else
+							String inputDescription = "";
+							for (int i = 2; i < els.size(); i++)
+							{
+								inputDescription += " " + els.get(i);
+							}
+							if (inputDescription.length() > 0) o.setDescription(inputDescription.trim());
+
 							p.getOutputs().add(o);
 						}
 
 						// otherwise we don't understand
 						else
 						{
-							throw new IOException("# " + els[0] + " is unknown annotation");
+							template += line + "\n";
 						}
 
 					}
@@ -135,7 +157,7 @@ public class ProtocolFtlParser
 		}
 		catch (Exception e)
 		{
-			throw new IOException("Parsing of protocol "+protocolFile+" failed: "+e.getMessage());
+			throw new IOException("Parsing of protocol " + protocolFile + " failed: " + e.getMessage());
 		}
 
 	}

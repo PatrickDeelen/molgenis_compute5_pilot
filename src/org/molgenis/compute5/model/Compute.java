@@ -3,7 +3,7 @@ package org.molgenis.compute5.model;
 import java.io.IOException;
 import java.util.List;
 
-import org.molgenis.compute5.backends.Backend;
+import org.molgenis.compute5.generators.BackendGenerator;
 import org.molgenis.compute5.generators.TaskGenerator;
 
 
@@ -12,7 +12,7 @@ public class Compute
 	Workflow workflow;
 	Parameters parameters;
 	List<Task> tasks;
-	Backend backend;
+	BackendGenerator backend;
 
 	public List<Task> generateTasks() throws IOException
 	{
@@ -50,12 +50,12 @@ public class Compute
 		this.parameters = parameters;
 	}
 
-	public Backend getBackend()
+	public BackendGenerator getBackend()
 	{
 		return backend;
 	}
 
-	public void setBackend(Backend backend)
+	public void setBackend(BackendGenerator backend)
 	{
 		this.backend = backend;
 	}
