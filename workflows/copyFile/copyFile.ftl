@@ -1,4 +1,4 @@
-# MOLGENIS
+#MOLGENIS
 # description This protocol will
 # description copy files from a source directory to a group directory
 # string sourceFile "this is the original path"
