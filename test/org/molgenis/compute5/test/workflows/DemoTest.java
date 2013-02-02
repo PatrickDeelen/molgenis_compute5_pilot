@@ -6,12 +6,12 @@ import org.molgenis.compute5.ComputeCommandLine;
 import org.molgenis.compute5.model.Compute;
 import org.testng.annotations.Test;
 
-public class NgsWorkflowTest
+public class DemoTest
 {
 	@Test
 	public void test() throws IOException
 	{
-		Compute c = ComputeCommandLine.create("workflows/ngs/workflow.csv", new String[]
-				{ "workflows/ngs/parameters.csv", "workflows/ngs/constants.csv" }, "example-output/ngs");
+		Compute c = ComputeCommandLine.create("demo/workflow.csv", new String[]
+		{ "demo/parameters.csv" }, "demo");
 	}
 }
