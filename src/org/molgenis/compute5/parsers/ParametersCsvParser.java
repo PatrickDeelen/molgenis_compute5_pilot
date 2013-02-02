@@ -3,7 +3,11 @@ package org.molgenis.compute5.parsers;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.NavigableSet;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.molgenis.compute5.generators.TupleUtils;
 import org.molgenis.compute5.model.Parameters;
@@ -12,32 +16,84 @@ import org.molgenis.util.tuple.KeyValueTuple;
 import org.molgenis.util.tuple.Tuple;
 import org.molgenis.util.tuple.WritableTuple;
 
-/** Parser for parameters csv file(s). Includes the solving of templated values.*/
+/** Parser for parameters csv file(s). Includes the solving of templated values. */
 public class ParametersCsvParser
 {
 
-	public static Parameters parse(File... files) throws IOException
+	public static Parameters parse(List<File> filesArray) throws IOException
 	{
 		try
 		{
 			final List<String> parameters = new ArrayList<String>();
 			final List<WritableTuple> values = new ArrayList<WritableTuple>();
 
-			if (files.length == 0) throw new IOException("Parameters.parse expects at least one file");
+			if (filesArray.size() == 0) throw new IOException("Parameters.parse expects at least one file");
+
+			// todo
+			NavigableSet<File> todo = new TreeSet<File>();
+			for (File f : filesArray)
+			{
+				todo.add(f.getAbsoluteFile());
+			}
+
+			// done
+			Set<File> done = new TreeSet<File>();
 
 			// first file, just read
-			for (Tuple t : new CsvReader(files[0]))
+			boolean firstRow = true;
+			File currentFile = todo.first().getAbsoluteFile();
+			for (Tuple t : new CsvReader(currentFile))
 			{
 				KeyValueTuple value = new KeyValueTuple();
 				value.set(t);
 				values.add(value);
-			}
 
-			// other files, join or combine
-			for (int i = 1; i < files.length; i++)
+				// check if this contains reference to workflow; need to
+				// translate relative into absolute path
+				if (!value.isNull("workflow"))
+				{
+					// in case of relative path, it is relative to current file
+					File workflowFile = new File(value.getString("workflow"));
+					if (!workflowFile.isAbsolute())
+					{
+						workflowFile = new File(currentFile.getCanonicalFile().getParentFile().getAbsolutePath() + "/"
+								+ value.getString("workflow"));
+					}
+					value.set("workflow", workflowFile.getAbsolutePath());
+				}
+
+				// check if this file includes reference to other files
+				if (firstRow)
+				{
+					// parameters.csv
+					if (!value.isNull(Parameters.PARAMETER_COLUMN))
+					{
+						for (String parameterFileName : value.getList(Parameters.PARAMETER_COLUMN))
+						{
+							// in case of relative path, it is relative to
+							// current file
+							File parameterFile = new File(parameterFileName);
+							if (!parameterFile.isAbsolute())
+							{
+								parameterFile = new File(currentFile.getCanonicalFile().getParentFile()
+										.getAbsolutePath()
+										+ "/" + parameterFileName);
+							}
+							todo.add(parameterFile);
+						}
+					}
+
+					firstRow = false;
+				}
+			}
+			done.add(currentFile);
+			todo.remove(currentFile);
+
+			// while not all files parsed, parse some more...
+			while (todo.size() > 0)
 			{
-				File f = files[i];
-				boolean first = true;
+				currentFile = todo.first().getAbsoluteFile();
+				firstRow = true;
 
 				// remember fields for natural join, if any
 				final List<String> joinFields = new ArrayList<String>();
@@ -45,10 +101,41 @@ public class ParametersCsvParser
 				// if join, we create combinations in this new list
 				final List<WritableTuple> newValues = new ArrayList<WritableTuple>();
 
-				for (Tuple t : new CsvReader(f))
+				for (Tuple t : new CsvReader(currentFile))
 				{
-					if (first)
+					if (firstRow)
 					{
+						// check if this file includes reference to other files
+						if (firstRow)
+						{
+							if (!t.isNull(Parameters.PARAMETER_COLUMN))
+							{
+								for (String parameterFileName : t.getList(Parameters.PARAMETER_COLUMN))
+								{
+									// in case of relative path, it is relative
+									// to current file
+									File parameterFile = new File(parameterFileName);
+									if (!parameterFile.isAbsolute())
+									{
+										parameterFile = new File(currentFile.getCanonicalFile().getParentFile()
+												.getAbsolutePath()
+												+ "/" + parameterFileName);
+									}
+									todo.add(parameterFile);
+
+									boolean isDone = false;
+
+									// check if we already parsed this file
+									for (File test : done)
+									{
+										if (test.getCanonicalPath().equals(parameterFile.getCanonicalPath())) isDone = true;
+									}
+									if (!isDone) todo.add(parameterFile);
+								}
+							}
+							firstRow = false;
+						}
+
 						for (String col : t.getColNames())
 						{
 							// check for natural join
@@ -59,14 +146,14 @@ public class ParametersCsvParser
 							// verify no '.' in name
 							if (col.contains("."))
 							{
-								throw new IOException("parsing " + f.getName()
+								throw new IOException("parsing " + currentFile.getName()
 										+ " failed: column names cannot contain '.'");
 							}
 
 							parameters.add(col);
 						}
 
-						first = false;
+						firstRow = false;
 					}
 
 					if (joinFields.size() > 0)
@@ -118,7 +205,29 @@ public class ParametersCsvParser
 						values.clear();
 						values.addAll(newValues);
 					}
+
+					// check if this contains reference to workflow; need to
+					// translate relative into absolute path
+					for (WritableTuple value : values)
+					{
+						if (!value.isNull("workflow"))
+						{
+							// in case of relative path, it is relative to
+							// current file
+							File workflowFile = new File(value.getString("workflow"));
+							if (!workflowFile.isAbsolute())
+							{
+								workflowFile = new File(currentFile.getCanonicalFile().getParentFile()
+										.getAbsolutePath()
+										+ "/" + value.getString("workflow"));
+							}
+							value.set("workflow", workflowFile.getAbsolutePath());
+						}
+					}
 				}
+
+				done.add(currentFile);
+				todo.remove(currentFile);
 			}
 
 			// solve the templates
@@ -142,6 +251,10 @@ public class ParametersCsvParser
 			{
 				value.set(Parameters.ID_COLUMN, count++);
 			}
+			
+			//clean files array
+			filesArray.clear();
+			filesArray.addAll(done);
 
 			Parameters p = new Parameters();
 			p.setValues(result);
@@ -151,13 +264,5 @@ public class ParametersCsvParser
 		{
 			throw new IOException("Parsing of parameters csv failed: " + e.getMessage());
 		}
-	}
-
-	public static Parameters parse(String... strings) throws IOException
-	{
-		File[] files = new File[strings.length];
-		for (int i = 0; i < strings.length; i++)
-			files[i] = new File(strings[i]);
-		return parse(files);
 	}
 }
