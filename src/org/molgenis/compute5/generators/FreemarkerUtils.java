@@ -9,15 +9,9 @@ import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.Template;
 
-public class Generator
+public class FreemarkerUtils
 {
-
-	public Generator()
-	{
-		super();
-	}
-
-	protected void applyTemplate(Map<String, Object> model, String templatePath, File dotFile) throws IOException
+	public void applyTemplate(Map<String, Object> model, String templatePath, File dotFile) throws IOException
 	{
 		Configuration conf = new Configuration();
 		conf.setClassForTemplateLoading(this.getClass(), "");

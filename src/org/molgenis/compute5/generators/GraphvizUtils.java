@@ -6,7 +6,7 @@ import java.io.IOException;
 import org.apache.log4j.Logger;
 import org.molgenis.generators.doc.DotDocGen;
 
-public class GraphvizUtil
+public class GraphvizUtils
 {
 	private static final Logger logger = Logger.getLogger(DotDocGen.class);
 

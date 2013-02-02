@@ -64,7 +64,7 @@ public class ProtocolFtlParser
 				if (line.startsWith("#"))
 				{
 					// remove #, trim spaces, then split on " "
-					line = line.substring(1);
+					line = line.substring(1).trim();
 					List<String> els = new ArrayList<String>();
 					Matcher m = Pattern.compile("([^\"]\\S*|\".+?\")\\s*").matcher(line);
 					while (m.find())

@@ -9,7 +9,7 @@ import org.molgenis.compute5.model.Workflow;
 
 
 /** Generates graphvis diagram */
-public class WorkflowDiagramGenerator extends Generator
+public class DocWorkflowDiagramGenerator
 {
 	public void generate(File dir, Workflow workflow) throws IOException
 	{
@@ -19,10 +19,10 @@ public class WorkflowDiagramGenerator extends Generator
 
 		//apply
 		File dotFile = new File(dir.getAbsoluteFile() + "/workflow.dot");
-		applyTemplate(model, "WorkflowDiagramGenerator.ftl", dotFile);
+		new FreemarkerUtils().applyTemplate(model, "DocWorkflowDiagramGenerator.ftl", dotFile);
 		
 		System.out.println("Generated "+dotFile);
 		
-		GraphvizUtil.executeDot(dotFile, "png", true);
+		GraphvizUtils.executeDot(dotFile, "png", true);
 	}
 }

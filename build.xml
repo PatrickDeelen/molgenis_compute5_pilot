@@ -39,7 +39,7 @@
 		<javac srcdir="${molgenis.dir}/src" destdir="${build.molgenis.dir}" nowarn="on" debug="true" includeantruntime="false">
 			<classpath refid="molgenis.classpath" />
 		</javac>
-
+		
 		<pathconvert property="app_src" refid="app.class.path" pathsep=":">
 			<map from="${basedir}/" to="" />
 		</pathconvert>
@@ -52,6 +52,12 @@
 		<javac fork="true" srcdir="${app_src}" destdir="${build.molgenis_apps.dir}" nowarn="on" memoryinitialsize="256m" memorymaximumsize="512m" debug="true" includeantruntime="false">
 			<classpath refid="molgenis.classpath" />
 		</javac>
+		
+		<!-- copy resources to build dir -->
+		<copy todir="${build.molgenis.dir}">
+			<fileset dir="${app_src}" includes="**/*.xml,**/*.properties,**/*.txt,**/*.ico,**/*.js,**/*.css,**/*.jpg,**/*.png,**/*.gif,**/*.ftl" />
+		</copy>
+
 
 	</target>
 	
@@ -79,6 +85,7 @@
 				<include name="freemarker.jar"/>
 				<include name="commons-io-2.4.jar"/>
 				<include name="log4j-1.2.15.jar"/>
+				<include name="opencsv-2.3.jar"/>
 			</fileset>
 		</copy>
 		
@@ -91,7 +98,7 @@
 		<!-- Create molgenis.jar -->
 		<jar jarfile="${lib_dir}/molgenis-${git.molgenis.version}.jar" basedir="${build.molgenis.dir}" update="false"/>
 
-						
+	
 		<!-- Create molgenis_app.jar in folder dist/${app} -->
 		<jar jarfile="${lib_dir}/molgenis-${app_name}-${git.apps.version}.jar" basedir="${build.molgenis_apps.dir}" update="false"/>
 		
@@ -110,7 +117,8 @@ $(dirname -- "$0")/lib/molgenis-compute-${git.apps.version}.jar:\
 $(dirname -- "$0")/lib/commons-cli-1.2.jar:\
 $(dirname -- "$0")/lib/commons-io-2.4.jar:\
 $(dirname -- "$0")/lib/freemarker.jar:\
-$(dirname -- "$0")/lib/log4j-1.2.15.jar \
+$(dirname -- "$0")/lib/log4j-1.2.15.jar:\
+$(dirname -- "$0")/lib/opencsv-2.3.jar \
 org.molgenis.compute5.ComputeCommandLine \
 $*
 		</echo>

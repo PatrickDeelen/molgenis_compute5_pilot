@@ -79,26 +79,29 @@ public class TaskGenerator
 			// add data dependencies
 			for (String previousStep : step.getPreviousSteps())
 			{
-				task.getPreviousTasks().addAll(target.getList(previousStep + "." + Task.TASKID_COLUMN));
+				if (!target.isNull(previousStep + "." + Task.TASKID_COLUMN))
+				{
+					task.getPreviousTasks().addAll(target.getList(previousStep + "." + Task.TASKID_COLUMN));
+				}
 			}
 
 			// generate script from template
 			try
 			{
 				out = new StringWriter();
-				Map<String,Object> map = TupleUtils.toMap(target);
+				Map<String, Object> map = TupleUtils.toMap(target);
 				template.process(map, out);
-				
+
 				// remember paramter values
-				task.setParameters(map); 
-				
+				task.setParameters(map);
+
 				task.setScript(out.toString());
 			}
 			catch (Exception e)
 			{
 				String params = guessParametersNeeded(step.getProtocol().getTemplate());
-				throw new IOException("Generation of protocol '" + step.getProtocol().getName()
-						+ "' failed: " + e.getMessage()+".\n"+params);
+				throw new IOException("Generation of protocol '" + step.getProtocol().getName() + "' failed: "
+						+ e.getMessage() + ".\nParameters used: " + target);
 			}
 
 			tasks.add(task);
@@ -111,12 +114,15 @@ public class TaskGenerator
 		Set<String> params = new HashSet<String>();
 		Pattern pattern = Pattern.compile("\\{(.*?)\\}");
 		Matcher matcher = pattern.matcher(ftl);
-		while (matcher.find()) {
-		    params.add( matcher.group(0).replace("{", "").replace("}", "")); //prints /{item}/
+		while (matcher.find())
+		{
+			params.add(matcher.group(0).replace("{", "").replace("}", "")); // prints
+																			// /{item}/
 		}
-		
+
 		String result = "\nParameters ${x} refered include:";
-		for(String p: params) result += "\n"+p;
+		for (String p : params)
+			result += "\n" + p;
 		return result;
 	}
 
@@ -125,7 +131,8 @@ public class TaskGenerator
 		int stepId = 1;
 		for (WritableTuple target : localParameters)
 		{
-			target.set(Task.TASKID_COLUMN, step.getName() + "_" + stepId++);
+			String name = step.getName() + "_" + stepId++;
+			target.set(Task.TASKID_COLUMN, name);
 		}
 		return localParameters;
 	}
@@ -196,7 +203,7 @@ public class TaskGenerator
 		{
 			WritableTuple local = new KeyValueTuple();
 
-			// add current global values
+			// add previous steps
 			local.set(global);
 
 			// include row number for later ;-)

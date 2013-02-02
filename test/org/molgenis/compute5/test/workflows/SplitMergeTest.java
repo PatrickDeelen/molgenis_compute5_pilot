@@ -6,13 +6,13 @@ import org.molgenis.compute5.ComputeCommandLine;
 import org.molgenis.compute5.model.Compute;
 import org.testng.annotations.Test;
 
-public class SplitMergeTest extends AbstractTest
+public class SplitMergeTest
 {
 	@Test
 	public void test() throws IOException
 	{
-		Compute c = ComputeCommandLine.create("workflows/splitmerge/workflow.csv", new String[]{"workflows/splitmerge/parameters.csv"});
-	
-		this.test(c);
+		Compute c = ComputeCommandLine.create("workflows/splitmerge/workflow.csv", new String[]
+		{ "workflows/splitmerge/parameters.csv" }, "example-output/splitmerge");
+
 	}
 }
