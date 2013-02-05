@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<settings>
+	<defaults>
+		<qc>
+			<snpqccallratethreshold>0.95</snpqccallratethreshold>
+			<snpqchwethreshold>0.0001</snpqchwethreshold>
+			<snpqcmafthreshold>0.05</snpqcmafthreshold>
+		</qc>
+		
+		<analysis>
+			<analysistype>cis</analysistype>
+			<cisanalysisprobedistance>250000</cisanalysisprobedistance>
+			<correlationtype>nonparametric</correlationtype>
+			<regressOutEQTLEffects></regressOutEQTLEffects>
+			<threads>8</threads>
+			<onlypermutations>false</onlypermutations>
+			<startwithpermutation></startwithpermutation>
+		</analysis>
+		
+		<multipletesting>
+			<type>fdr</type>
+			<threshold>0.05</threshold>
+			<permutations>100</permutations>
+		</multipletesting>
+		
+		<output>
+			<outputdirectory>/target/gpfs2/gcc/groups/gonl/projects/imputationBenchmarking/eQtl/1240BloodEur1000GImputedMinimac/Results/</outputdirectory>
+			<outputplotthreshold>0</outputplotthreshold>
+			<outputplotdirectory>/target/gpfs2/gcc/groups/gonl/projects/imputationBenchmarking/eQtl/1240BloodEur1000GImputedMinimac/Results/plots/</outputplotdirectory>
+			<maxnreqtlresults>10000000</maxnreqtlresults>
+			<generatesnpsummarystatistics>false</generatesnpsummarystatistics>
+			<generateeqtlpvaluetable>false</generateeqtlpvaluetable>
+		</output>
+		
+		<confine>
+			<snp>/target/gpfs2/gcc/groups/gonl/projects/imputationBenchmarking/eQtl/1240BloodEur1000GImputedMinimac/includedSnps.txt</snp>
+			<snpProbe></snpProbe>
+			<probe></probe>
+			<confineSNPsToSNPsPresentInAllDatasets>false</confineSNPsToSNPsPresentInAllDatasets>
+			<confineSNPsSelectSNPInStrongestLD>false</confineSNPsSelectSNPInStrongestLD>
+			<confineProbesThatMapToKnownChromosome>false</confineProbesThatMapToKnownChromosome>
+		</confine>	
+	</defaults>
+
+	<datasets>
+		<dataset>
+			<name>BloodHT12</name>
+			<location>/target/gpfs2/gcc/groups/gonl/projects/imputationBenchmarking/eQtl/1240BloodEur1000GImputedMinimac/trityper/</location>			
+			<genometoexpressioncoupling></genometoexpressioncoupling>
+			<expressiondata>/target/gpfs2/gcc/groups/gonl/projects/imputationBenchmarking/eQtl/ExpressionData/ExpressionData.txt.gz.40PCAsOverSamplesRemoved-GeneticVectorsNotRemoved.txt</expressiondata>
+			<expressionplatform>HT12v3</expressionplatform>
+			<probeannotation>/target/gpfs2/gcc/groups/gonl/projects/imputationBenchmarking/eQtl/ExpressionData/HT12v3Annotation.txt</probeannotation>
+			<quantilenormalize>false</quantilenormalize>
+			<logtranform>false</logtranform>
+		</dataset>
+
+	</datasets>
+</settings>
