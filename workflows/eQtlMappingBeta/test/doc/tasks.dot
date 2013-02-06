@@ -1,0 +1,11 @@
+digraph G {
+node [fontname = "Arial"
+            fontsize = 8
+            shape = "record"
+            color = "#808080"
+            style="filled"
+            fillcolor = "white"
+            layer = "2"
+            colorscheme = pastel19]
+            
+}

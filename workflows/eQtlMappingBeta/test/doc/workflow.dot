@@ -1,0 +1,19 @@
+digraph G {
+node [fontname = "Arial"
+            fontsize = 8
+            shape = "record"
+            color = "#808080"
+            style="filled"
+            fillcolor = "white"
+            layer = "2"
+            colorscheme = pastel19]
+realMapping[
+ 	fillcolor =  "1"
+ 	label = "{ realMapping | eQtlConfig=user.eQtlConfigXml\nmetaQtlJar=user.metaQtlJar\n |  }"]
+permutations[
+ 	fillcolor =  "2"
+ 	label = "{ permutations | eQtlConfig=user.eQtlConfigXml\nmetaQtlJar=user.metaQtlJar\n |  }"]
+rerunFdr[
+ 	fillcolor =  "3"
+ 	label = "{ rerunFdr | eQtlConfig=user.eQtlConfigXml\n |  }"]
+}

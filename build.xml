@@ -2,7 +2,7 @@
 
 	<property name="app_name" value="compute" />
 	<property name="molgenis.dir" value="../molgenis" />
-	<property name="build.molgenis.dir" value="../molgenis/bin" />
+	<property name="build.molgenis.dir" value="../molgenis-legacy/bin" />
 	<property name="build.molgenis_apps.dir" value="bin" />
 
 	

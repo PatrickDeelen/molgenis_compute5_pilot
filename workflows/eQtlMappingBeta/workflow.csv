@@ -1,0 +1,4 @@
+step,protocol,parameters
+realMapping,eQtlRealMapping.ftl,eQtlConfig=user.eQtlConfigXml;metaQtlJar=user.metaQtlJar
+permutations,eQtlPermutationMapping.ftl,eQtlConfig=user.eQtlConfigXml;metaQtlJar=user.metaQtlJar
+rerunFdr,eQtlRerunFdr.ftl,eQtlConfig=user.eQtlConfigXml
